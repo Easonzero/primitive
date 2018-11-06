@@ -29,52 +29,13 @@ function getFill(canvas) {
 	return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 }
 
-function svgRect(w, h) {
-	let node = document.createElementNS(util.SVGNS, "rect");
-	node.setAttribute("x", 0);
-	node.setAttribute("y", 0);
-	node.setAttribute("width", w);
-	node.setAttribute("height", h);
-
-	return node;
-}
-
 /* Canvas: a wrapper around a <canvas> element */
 export default class Canvas {
 	static empty(cfg, svg) {
-		let w = cfg.width * cfg.scale;
-		let h = cfg.height * cfg.scale;
-		if (svg) {
-			let node = document.createElementNS(util.SVGNS, "svg");
-			node.setAttribute("viewBox", `0 0 ${w} ${h}`);
-			node.setAttribute("clip-path", "url(#clip)");
-
-			let defs = document.createElementNS(util.SVGNS, "defs");
-			node.appendChild(defs);
-
-			let cp = document.createElementNS(util.SVGNS, "clipPath");
-			defs.appendChild(cp);
-			cp.setAttribute("id", "clip");
-			cp.setAttribute("clipPathUnits", "objectBoundingBox");
-			
-			let rect = svgRect(w, h);
-			cp.appendChild(rect);
-
-			rect = svgRect(w, h);
-			rect.setAttribute("fill", cfg.fill);
-			node.appendChild(rect);
-
-			return node;
-		} else {
-			return new this(w, h).fill(cfg.fill);
-		}
+		return new this(w, h).fill(cfg.fill);
 	}
 
 	static original(url, cfg) {
-		if (url == "test") {
-			return Promise.resolve(this.test(cfg));
-		}
-
 		return new Promise(resolve => {
 			let img = new Image();
 			img.crossOrigin = true;

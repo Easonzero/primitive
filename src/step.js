@@ -13,13 +13,6 @@ export default class Step {
 		this.distance = Infinity;
 	}
 
-	toSVG() {
-		let node = this.shape.toSVG();
-		node.setAttribute("fill", this.color);
-		node.setAttribute("fill-opacity", this.alpha.toFixed(2));
-		return node;
-	}
-
 	/* apply this step to a state to get a new state. call only after .compute */
 	apply(state) {
 		let newCanvas = state.canvas.clone().drawStep(this);

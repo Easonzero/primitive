@@ -1,5 +1,3 @@
-export const SVGNS = "http://www.w3.org/2000/svg";
-
 (function() {
 	const values = [.5, .7, .1, .2, .8, .4, .9, .3, .6, .01, .99, .68, .38, .18, .77, .91, .53, .22, .47];
 	function r() {

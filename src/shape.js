@@ -20,8 +20,6 @@ export class Shape {
 
 	mutate(cfg) { return this; }
 
-	toSVG() {}
-
 	/* get a new smaller canvas with this shape */
 	rasterize(alpha) { 
 		let canvas = new Canvas(this.bbox.width, this.bbox.height);
@@ -55,16 +53,6 @@ class Polygon extends Shape {
 		});
 		ctx.closePath();
 		ctx.fill();
-	}
-
-	toSVG() {
-		let path = document.createElementNS(util.SVGNS, "path");
-		let d = this.points.map((point, index) => {
-			let cmd = (index ? "L" : "M");
-			return `${cmd}${point.join(",")}`;
-		}).join("");
-		path.setAttribute("d", `${d}Z`);
-		return path;
 	}
 
 	mutate(cfg) {
@@ -190,15 +178,6 @@ export class Ellipse extends Shape {
 		ctx.beginPath();
 		ctx.ellipse(this.center[0], this.center[1], this.rx, this.ry, 0, 0, 2*Math.PI, false);
 		ctx.fill();
-	}
-
-	toSVG() {
-		let node = document.createElementNS(util.SVGNS, "ellipse");
-		node.setAttribute("cx", this.center[0]);
-		node.setAttribute("cy", this.center[1]);
-		node.setAttribute("rx", this.rx);
-		node.setAttribute("ry", this.ry);
-		return node;
 	}
 
 	mutate(cfg) {
