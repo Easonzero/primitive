@@ -1,0 +1,12 @@
+{
+  "name": "drawing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "author": "easonzero",
+  "license": "ISC",
+  "dependencies": {
+    "rollup": "^0.67.0",
+    "rollup-watch": "^4.3.1"
+  }
+}
