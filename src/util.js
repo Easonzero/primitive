@@ -127,3 +127,31 @@ export function computeColorAndDifferenceChange(offset, imageData, alpha) {
 
 	return {color, differenceChange};
 }
+
+export function getFill(canvas) {
+    let data = canvas.getImageData();
+    let w = data.width;
+    let h = data.height;
+    let d = data.data;
+    let rgb = [0, 0, 0];
+    let count = 0;
+    let i;
+
+    for (let x=0; x<w; x++) {
+        for (let y=0; y<h; y++) {
+            if (x > 0 && y > 0 && x < w-1 && y < h-1) { continue; }
+            count++;
+            i = 4*(x + y*w);
+            rgb[0] += d[i];
+            rgb[1] += d[i+1];
+            rgb[2] += d[i+2];
+        }
+    }
+
+    rgb = rgb.map(x => ~~(x/count)).map(util.clampColor);
+    return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+}
+
+export function getScale(width, height, limit) {
+    return Math.max(width / limit, height / limit, 1);
+}
