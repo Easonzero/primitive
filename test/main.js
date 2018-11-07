@@ -1,6 +1,6 @@
 function init(url) {
     let cfg = $P.DefaultConfig();
-    cfg.shapeTypes = [$P.ShapeMap.rectangle]
+    cfg.shapeTypes = [$P.ShapeMap.line]
     $P.Pure(url, cfg).then((ori) => {
         let optimizer = new $P.Optimizer(ori, cfg);
         let dst = $P.Canvas.empty(cfg);

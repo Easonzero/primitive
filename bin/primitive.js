@@ -376,6 +376,20 @@
 		}
 	}
 
+	class Line extends Polygon {
+		constructor(w, h) {
+			super(w, h, 2);
+		}
+
+		render(ctx) {
+			ctx.beginPath();
+			ctx.moveTo(this.points[0][0], this.points[0][1]);
+			ctx.lineTo(this.points[1][0], this.points[1][1]);
+			ctx.stroke();
+			ctx.closePath();
+		}
+	}
+
 	class Triangle extends Polygon {
 		constructor(w, h) {
 			super(w, h, 3);
@@ -520,6 +534,7 @@
 				this.points[3][0], this.points[3][1]
 			);
 			ctx.stroke();
+			ctx.closePath();
 		}
 	}
 
@@ -622,7 +637,8 @@
 	    ellipse: Ellipse,
 	    rectangle: Rectangle,
 	    triangle: Triangle,
-	    bezier: Bezier
+	    bezier: Bezier,
+	    line: Line
 	};
 
 	const Pure = (url, cfg) => new Promise(resolve => {

@@ -1,13 +1,14 @@
 import Canvas from "./src/canvas";
 import {getFill, getScale} from "./src/util";
 import Optimizer from "./src/optimizer";
-import { Ellipse, Rectangle, Triangle, Bezier } from "./src/shape"
+import { Ellipse, Rectangle, Triangle, Bezier, Line } from "./src/shape"
 
 const ShapeMap = {
     ellipse: Ellipse,
     rectangle: Rectangle,
     triangle: Triangle,
-    bezier: Bezier
+    bezier: Bezier,
+    line: Line
 };
 
 const Pure = (url, cfg) => new Promise(resolve => {

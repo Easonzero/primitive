@@ -110,6 +110,14 @@ export class Line extends Polygon {
 	constructor(w, h) {
 		super(w, h, 2);
 	}
+
+	render(ctx) {
+		ctx.beginPath()
+		ctx.moveTo(this.points[0][0], this.points[0][1]);
+		ctx.lineTo(this.points[1][0], this.points[1][1]);
+		ctx.stroke();
+		ctx.closePath()
+	}
 }
 
 export class Triangle extends Polygon {
@@ -248,7 +256,7 @@ export class Bezier extends Polygon {
 	}
 
 	render(ctx) {
-		ctx.beginPath();
+		ctx.beginPath()
 		ctx.moveTo(this.points[0][0], this.points[0][1]);
 		ctx.bezierCurveTo(
 			this.points[1][0], this.points[1][1], 
@@ -256,5 +264,6 @@ export class Bezier extends Polygon {
 			this.points[3][0], this.points[3][1]
 		);
 		ctx.stroke();
+		ctx.closePath()
 	}
 }
