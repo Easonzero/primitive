@@ -17,7 +17,6 @@ const Pure = (url, cfg) => new Promise(resolve => {
     img.onload = e => {
         let w = img.naturalWidth;
         let h = img.naturalHeight;
-        console.log(w, h)
         let computeScale = getScale(w, h, cfg.computeSize);
         cfg.width = w / computeScale;
         cfg.height = h / computeScale;
@@ -50,8 +49,8 @@ const DefaultConfig = () => ({
     mutations: 30,// stop optimization nums
     scale: 1,
     shapeTypes: [ShapeMap.bezier],
-    shapes: 500,
-    steps: 1000,
+    shapes: 200,
+    steps: 500,
 });
 
 window.$P = window.primitive = {

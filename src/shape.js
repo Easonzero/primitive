@@ -1,4 +1,5 @@
-import Canvas from "./canvas.js";
+import Canvas from "./canvas";
+import { centerPoint } from "./util"
 
 /* Shape: a geometric primitive with a bbox */
 export class Shape {
@@ -105,6 +106,12 @@ class Polygon extends Shape {
 	}
 }
 
+export class Line extends Polygon {
+	constructor(w, h) {
+		super(w, h, 2);
+	}
+}
+
 export class Triangle extends Polygon {
 	constructor(w, h) {
 		super(w, h, 3);
@@ -114,6 +121,17 @@ export class Triangle extends Polygon {
 export class Rectangle extends Polygon {
 	constructor(w, h) {
 		super(w, h, 4);
+		this.angle = 0;
+	}
+
+	render(ctx){
+		ctx.save();
+		let center = centerPoint(this.points[0], this.points[2]);
+		ctx.translate(center[0], center[1]);
+		ctx.rotate(this.angle);
+		ctx.translate(-center[0], -center[1]);
+		super.render(ctx);
+		ctx.restore();
 	}
 
 	mutate(cfg) {
@@ -122,7 +140,7 @@ export class Rectangle extends Polygon {
 
 		let amount = ~~((Math.random()-0.5) * 20);
 
-		switch (Math.floor(Math.random()*4)) {
+		switch (Math.floor(Math.random()*8)) {
 			case 0: /* left */
 				clone.points[0][0] += amount;
 				clone.points[3][0] += amount;
@@ -138,6 +156,12 @@ export class Rectangle extends Polygon {
 			case 3: /* bottom */
 				clone.points[2][1] += amount;
 				clone.points[3][1] += amount;
+			break;
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+				clone.angle = (amount / 20 + 0.5) * Math.PI;
 			break;
 		}
 

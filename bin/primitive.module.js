@@ -146,6 +146,10 @@ function getScale(width, height, limit) {
     return Math.max(width / limit, height / limit, 1);
 }
 
+function centerPoint(p1, p2){
+	return [(p1[0]+p2[0])/2, (p1[1]+p2[1])/2]
+}
+
 /* Canvas: a wrapper around a <canvas> element */
 class Canvas {
     constructor(width, height) {
@@ -375,6 +379,17 @@ class Triangle extends Polygon {
 class Rectangle extends Polygon {
 	constructor(w, h) {
 		super(w, h, 4);
+		this.angle = 0;
+	}
+
+	render(ctx){
+		ctx.save();
+		let center = centerPoint(this.points[0], this.points[2]);
+		ctx.translate(center[0], center[1]);
+		ctx.rotate(this.angle);
+		ctx.translate(-center[0], -center[1]);
+		super.render(ctx);
+		ctx.restore();
 	}
 
 	mutate(cfg) {
@@ -383,7 +398,7 @@ class Rectangle extends Polygon {
 
 		let amount = ~~((Math.random()-0.5) * 20);
 
-		switch (Math.floor(Math.random()*4)) {
+		switch (Math.floor(Math.random()*8)) {
 			case 0: /* left */
 				clone.points[0][0] += amount;
 				clone.points[3][0] += amount;
@@ -399,6 +414,12 @@ class Rectangle extends Polygon {
 			case 3: /* bottom */
 				clone.points[2][1] += amount;
 				clone.points[3][1] += amount;
+			break;
+			case 4:
+			case 5:
+			case 6:
+			case 7:
+				clone.angle = (amount / 20 + 0.5) * Math.PI;
 			break;
 		}
 
@@ -605,7 +626,6 @@ const Pure = (url, cfg) => new Promise(resolve => {
     img.onload = e => {
         let w = img.naturalWidth;
         let h = img.naturalHeight;
-        console.log(w, h);
         let computeScale = getScale(w, h, cfg.computeSize);
         cfg.width = w / computeScale;
         cfg.height = h / computeScale;
@@ -638,8 +658,8 @@ const DefaultConfig = () => ({
     mutations: 30,// stop optimization nums
     scale: 1,
     shapeTypes: [ShapeMap.bezier],
-    shapes: 500,
-    steps: 1000,
+    shapes: 200,
+    steps: 500,
 });
 
 window.$P = window.primitive = {
