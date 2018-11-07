@@ -2,7 +2,7 @@
 
 A JavaScript re-creation of the [primitive.lol](http://primitive.lol/) application.
 
-This project works on the ondras/primitive.js, and you can learn more about primitive.js in [primitive.js](https://github.com/Easonzero/primitive.js)
+This project works on the ondras/primitive.js, and you can learn more about primitive.js in [primitive.js](https://github.com/ondras/primitive.js)
 
 ## What is the difference between this project and ondras/primitive.js
 
