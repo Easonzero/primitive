@@ -1,5 +1,4 @@
 import Canvas from "./canvas.js";
-import * as util from "./util.js";
 
 /* Shape: a geometric primitive with a bbox */
 export class Shape {
@@ -216,5 +215,22 @@ export class Ellipse extends Shape {
 			height: 2*this.ry
 		}
 		return this;
+	}
+}
+
+export class Bezier extends Polygon {
+	constructor(w, h) {
+		super(w, h, 4);
+	}
+
+	render(ctx) {
+		ctx.beginPath();
+		ctx.moveTo(this.points[0][0], this.points[0][1]);
+		ctx.bezierCurveTo(
+			this.points[1][0], this.points[1][1], 
+			this.points[2][0], this.points[2][1],
+			this.points[3][0], this.points[3][1]
+		);
+		ctx.stroke();
 	}
 }

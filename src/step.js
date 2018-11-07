@@ -33,7 +33,7 @@ export default class Step {
 		let {color, differenceChange} = util.computeColorAndDifferenceChange(offset, imageData, this.alpha);
 		this.color = color;
 		let currentDifference = util.distanceToDifference(state.distance, pixels);
-		if (-differenceChange > currentDifference) debugger;
+		// if (-differenceChange > currentDifference) debugger;
 		this.distance = util.differenceToDistance(currentDifference + differenceChange, pixels);
 
 		return Promise.resolve(this);

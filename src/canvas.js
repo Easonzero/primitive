@@ -7,11 +7,13 @@ export default class Canvas {
         this.node.width = width;
         this.node.height = height;
         this.ctx = this.node.getContext("2d");
-        this._imageData = null;
+		this._imageData = null;
     }
 
     static empty(cfg) {
-        return new Canvas(cfg.scale*cfg.width, cfg.scale*cfg.height).fill(cfg.fill);
+		let canvas = new Canvas(cfg.scale*cfg.width, cfg.scale*cfg.height).fill(cfg.fill);
+		canvas.ctx.scale(cfg.scale, cfg.scale);
+		return canvas;
     }
 
     clone() {
@@ -47,7 +49,8 @@ export default class Canvas {
 
     drawStep(step) {
         this.ctx.globalAlpha = step.alpha;
-        this.ctx.fillStyle = step.color;
+		this.ctx.fillStyle = step.color;
+		this.ctx.strokeStyle = step.color;
         step.shape.render(this.ctx);
         return this;
     }
