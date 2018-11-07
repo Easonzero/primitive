@@ -1,6 +1,6 @@
 function init(url) {
     let cfg = $P.DefaultConfig();
-    cfg.shapeTypes = [$P.ShapeMap.line]
+    cfg.shapeTypes = [$P.ShapeMap.line, $P.ShapeMap.rectangle, $P.ShapeMap.bezier]
     $P.Pure(url, cfg).then((ori) => {
         let optimizer = new $P.Optimizer(ori, cfg);
         let dst = $P.Canvas.empty(cfg);
@@ -12,4 +12,4 @@ function init(url) {
     })
 }
 
-init('../image/test.jpg');
+init('input.jpg');
