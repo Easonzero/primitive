@@ -88,6 +88,7 @@ export default class Optimizer {
 					failedAttempts++;
 				}
 				
+				// requestAnimationFrame(tryMutation);
 				tryMutation();
 			});
 		}

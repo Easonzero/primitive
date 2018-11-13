@@ -1,15 +1,7 @@
 import Canvas from "./src/canvas";
 import {getFill, getScale} from "./src/util";
 import Optimizer from "./src/optimizer";
-import { Ellipse, Rectangle, Triangle, Bezier, Line } from "./src/shape"
-
-const ShapeMap = {
-    ellipse: Ellipse,
-    rectangle: Rectangle,
-    triangle: Triangle,
-    bezier: Bezier,
-    line: Line
-};
+import { ShapeMap } from "./src/shape"
 
 const Pure = (url, cfg) => new Promise(resolve => {
     let img = new Image();
@@ -33,7 +25,7 @@ const Pure = (url, cfg) => new Promise(resolve => {
             cfg.fill = getFill(canvas);
         }
 
-        resolve(canvas);
+        resolve(canvas, cfg);
     };
     img.onerror = e => {
         console.error(e);

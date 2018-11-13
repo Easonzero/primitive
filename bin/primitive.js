@@ -281,12 +281,16 @@
 			let ctors = cfg.shapeTypes;
 			let index = Math.floor(Math.random() * ctors.length);
 			let ctor = ctors[index];
-			return new ctor(cfg.width, cfg.height);
+			return new ctor(cfg.width, cfg.height).init();
 		}
 
 		constructor(w, h) {
 			this.bbox = {};
+			this.w = w;
+			this.h = h;
 		}
+
+		init(){ return this; }
 
 		mutate(cfg) { return this; }
 
@@ -302,14 +306,24 @@
 		}
 
 		render(ctx) {}
+
+		serialize() { return { type: 'Shape'} }
+
+		static deserialize(serialization) {
+
+		}
 	}
 
 	class Polygon extends Shape {
 		constructor(w, h, count) {
 			super(w, h);
+			this.count = count;
+		}
 
-			this.points = this._createPoints(w, h, count);
+		init(){
+			this.points = this._createPoints();
 			this.computeBbox();
+			return this;
 		}
 
 		render(ctx) {
@@ -360,11 +374,11 @@
 			return this;
 		}
 
-		_createPoints(w, h, count) {
-			let first = Shape.randomPoint(w, h);
+		_createPoints() {
+			let first = Shape.randomPoint(this.w, this.h);
 			let points = [first];
 
-			for (let i=1;i<count;i++) {
+			for (let i=1;i<this.count;i++) {
 				let angle = Math.random() * 2 * Math.PI;
 				let radius = Math.random() * 20;
 				points.push([
@@ -373,6 +387,15 @@
 				]);
 			}
 			return points;
+		}
+
+		serialize() {
+			let super_serialization = super.serialize();
+			super_serialization.type = 'Polygon';
+			return {
+				super_serialization,
+				points: this.points
+			}
 		}
 	}
 
@@ -388,11 +411,23 @@
 			ctx.stroke();
 			ctx.closePath();
 		}
+
+		serialize() {
+			let super_serialization = super.serialize();
+			super_serialization.type = 'Line';
+			return super_serialization;
+		}
 	}
 
 	class Triangle extends Polygon {
 		constructor(w, h) {
 			super(w, h, 3);
+		}
+
+		serialize() {
+			let super_serialization = super.serialize();
+			super_serialization.type = 'Triangle';
+			return super_serialization;
 		}
 	}
 
@@ -446,9 +481,9 @@
 			return clone.computeBbox();
 		}
 
-		_createPoints(w, h, count) {
-			let p1 = Shape.randomPoint(w, h);
-			let p2 = Shape.randomPoint(w, h);
+		_createPoints() {
+			let p1 = Shape.randomPoint(this.w, this.h);
+			let p2 = Shape.randomPoint(this.w, this.h);
 
 			let left = Math.min(p1[0], p2[0]);
 			let right = Math.max(p1[0], p2[0]);
@@ -462,17 +497,28 @@
 				[left, bottom]
 			];
 		}
+
+		serialize() { 
+			let super_serialization = super.serialize();
+			super_serialization.type = 'Rectangle';
+			return {
+				super_serialization,
+				angle: this.angle
+			}
+		}
 	}
 
 	class Ellipse extends Shape {
 		constructor(w, h) {
 			super(w, h);
+		}
 
+		init(){
 			this.center = Shape.randomPoint(w, h);
 			this.rx = 1 + ~~(Math.random() * 20);
 			this.ry = 1 + ~~(Math.random() * 20);
-
 			this.computeBbox();
+			return this;
 		}
 
 		render(ctx) {
@@ -518,6 +564,17 @@
 			};
 			return this;
 		}
+
+		serialize() {
+			let super_serialization = super.serialize();
+			super_serialization.type = 'Ellipse';
+			return {
+				super_serialization,
+				center: this.center,
+				rx: this.rx,
+				ry: this.ry
+			}
+		}
 	}
 
 	class Bezier extends Polygon {
@@ -535,6 +592,12 @@
 			);
 			ctx.stroke();
 			ctx.closePath();
+		}
+
+		serialize() {
+			let super_serialization = super.serialize();
+			super_serialization.type = 'Bezier';
+			return super_serialization;
 		}
 	}
 
@@ -623,6 +686,7 @@
 						failedAttempts++;
 					}
 					
+					// requestAnimationFrame(tryMutation);
 					tryMutation();
 				});
 			};
@@ -663,7 +727,7 @@
 	            cfg.fill = getFill(canvas);
 	        }
 
-	        resolve(canvas);
+	        resolve(canvas, cfg);
 	    };
 	    img.onerror = e => {
 	        console.error(e);
