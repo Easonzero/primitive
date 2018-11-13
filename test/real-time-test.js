@@ -1,5 +1,5 @@
 let dst;
-
+let json = {steps:[]};
 function init(url) {
     let cfg = $P.DefaultConfig();
     cfg.shapeTypes = [$P.ShapeMap.Line, $P.ShapeMap.Rectangle, $P.ShapeMap.Bezier]
@@ -9,10 +9,21 @@ function init(url) {
 
         document.querySelector("#main").appendChild(dst.node);
 
-        optimizer.onStep = step => step && dst.drawStep(step);
+        optimizer.onStep = step => {
+            if(step) {
+                json.steps.push(step.serialize());
+                dst.drawStep(step);
+            }
+        }
         optimizer.start();
     })
 }
+
+function save(){
+    var blob = new Blob([JSON.stringify(json)], { type: "text/plain;charset=utf-8" });
+    saveAs(blob, "steps.json");
+}
+
 
 // let canvas = document.querySelector("#my-canvas").getContext('2d');
 

@@ -215,56 +215,6 @@ class State {
 	}
 }
 
-/* Step: a Shape, color and alpha */
-class Step {
-	constructor(shape, cfg) {
-		this.shape = shape;
-		this.cfg = cfg;
-		this.alpha = cfg.alpha;
-		
-		/* these two are computed during the .compute() call */
-		this.color = "#000";
-		this.distance = Infinity;
-	}
-
-	/* apply this step to a state to get a new state. call only after .compute */
-	apply(state) {
-		let newCanvas = state.canvas.clone().drawStep(this);
-		return new State(state.target, newCanvas, this.distance);
-	}
-
-	/* find optimal color and compute the resulting distance */
-	compute(state) {
-		let pixels = state.canvas.node.width * state.canvas.node.height;
-		let offset = this.shape.bbox;
-
-		let imageData = {
-			shape: this.shape.rasterize(this.alpha).getImageData(),
-			current: state.canvas.getImageData(),
-			target: state.target.getImageData()
-		};
-
-		let {color, differenceChange} = computeColorAndDifferenceChange(offset, imageData, this.alpha);
-		this.color = color;
-		let currentDifference = distanceToDifference(state.distance, pixels);
-		// if (-differenceChange > currentDifference) debugger;
-		this.distance = differenceToDistance(currentDifference + differenceChange, pixels);
-
-		return Promise.resolve(this);
-	}
-
-	/* return a slightly mutated step */
-	mutate() {
-		let newShape = this.shape.mutate(this.cfg);
-		let mutated = new this.constructor(newShape, this.cfg);
-		if (this.cfg.mutateAlpha) {
-			let mutatedAlpha = this.alpha + (Math.random()-0.5) * 0.08;
-			mutated.alpha = clamp(mutatedAlpha, .1, 1);
-		}
-		return mutated;
-	}
-}
-
 /* Shape: a geometric primitive with a bbox */
 class Shape {
 	static randomPoint(width, height) {
@@ -301,10 +251,16 @@ class Shape {
 
 	render(ctx) {}
 
-	serialize() { return { type: 'Shape'} }
+	serialize() { return { shape_type: 'Shape'} }
 
 	static deserialize(serialization) {
+		let ctor = ShapeMap[serialization.shape_type];
+		let shape = new ctor();
 
+		Object.keys(serialization).forEach(
+			key => key != 'shape_type' && (shape[key] = serialization[key])
+		);
+		return shape;
 	}
 }
 
@@ -385,9 +341,9 @@ class Polygon extends Shape {
 
 	serialize() {
 		let super_serialization = super.serialize();
-		super_serialization.type = 'Polygon';
+		super_serialization.shape_type = 'Polygon';
 		return {
-			super_serialization,
+			...super_serialization,
 			points: this.points
 		}
 	}
@@ -408,7 +364,7 @@ class Line extends Polygon {
 
 	serialize() {
 		let super_serialization = super.serialize();
-		super_serialization.type = 'Line';
+		super_serialization.shape_type = 'Line';
 		return super_serialization;
 	}
 }
@@ -420,7 +376,7 @@ class Triangle extends Polygon {
 
 	serialize() {
 		let super_serialization = super.serialize();
-		super_serialization.type = 'Triangle';
+		super_serialization.shape_type = 'Triangle';
 		return super_serialization;
 	}
 }
@@ -494,9 +450,9 @@ class Rectangle extends Polygon {
 
 	serialize() { 
 		let super_serialization = super.serialize();
-		super_serialization.type = 'Rectangle';
+		super_serialization['shape_type'] = 'Rectangle';
 		return {
-			super_serialization,
+			...super_serialization,
 			angle: this.angle
 		}
 	}
@@ -561,9 +517,9 @@ class Ellipse extends Shape {
 
 	serialize() {
 		let super_serialization = super.serialize();
-		super_serialization.type = 'Ellipse';
+		super_serialization.shape_type = 'Ellipse';
 		return {
-			super_serialization,
+			...super_serialization,
 			center: this.center,
 			rx: this.rx,
 			ry: this.ry
@@ -590,8 +546,82 @@ class Bezier extends Polygon {
 
 	serialize() {
 		let super_serialization = super.serialize();
-		super_serialization.type = 'Bezier';
+		super_serialization.shape_type = 'Bezier';
 		return super_serialization;
+	}
+}
+
+const ShapeMap = {
+	Ellipse: Ellipse,
+	Rectangle: Rectangle,
+	Triangle: Triangle,
+	Bezier: Bezier,
+	Line: Line
+};
+
+/* Step: a Shape, color and alpha */
+class Step {
+	constructor(shape, cfg) {
+		this.shape = shape;
+		this.cfg = cfg;
+		this.alpha = cfg?cfg.alpha:1.;
+		
+		/* these two are computed during the .compute() call */
+		this.color = "#000";
+		this.distance = Infinity;
+	}
+
+	/* apply this step to a state to get a new state. call only after .compute */
+	apply(state) {
+		let newCanvas = state.canvas.clone().drawStep(this);
+		return new State(state.target, newCanvas, this.distance);
+	}
+
+	/* find optimal color and compute the resulting distance */
+	compute(state) {
+		let pixels = state.canvas.node.width * state.canvas.node.height;
+		let offset = this.shape.bbox;
+
+		let imageData = {
+			shape: this.shape.rasterize(this.alpha).getImageData(),
+			current: state.canvas.getImageData(),
+			target: state.target.getImageData()
+		};
+
+		let {color, differenceChange} = computeColorAndDifferenceChange(offset, imageData, this.alpha);
+		this.color = color;
+		let currentDifference = distanceToDifference(state.distance, pixels);
+		// if (-differenceChange > currentDifference) debugger;
+		this.distance = differenceToDistance(currentDifference + differenceChange, pixels);
+
+		return Promise.resolve(this);
+	}
+
+	/* return a slightly mutated step */
+	mutate() {
+		let newShape = this.shape.mutate(this.cfg);
+		let mutated = new this.constructor(newShape, this.cfg);
+		if (this.cfg.mutateAlpha) {
+			let mutatedAlpha = this.alpha + (Math.random()-0.5) * 0.08;
+			mutated.alpha = clamp(mutatedAlpha, .1, 1);
+		}
+		return mutated;
+	}
+
+	serialize() { 
+		return { 
+			alpha: this.alpha,
+			color: this.color,
+			shape: this.shape.serialize()
+		} 
+	}
+
+	static deserialize(json){
+		let step = new Step();
+		step.shape = Shape.deserialize(json.shape);
+		step.color = json.color;
+		step.alpha = json.alpha;
+		return step;
 	}
 }
 
@@ -691,14 +721,6 @@ class Optimizer {
 	}
 }
 
-const ShapeMap = {
-    ellipse: Ellipse,
-    rectangle: Rectangle,
-    triangle: Triangle,
-    bezier: Bezier,
-    line: Line
-};
-
 const Pure = (url, cfg) => new Promise(resolve => {
     let img = new Image();
     img.crossOrigin = true;
@@ -745,6 +767,7 @@ const DefaultConfig = () => ({
 window.$P = window.primitive = {
     Canvas,
     Optimizer,
+    Step,
     ShapeMap,
     Pure,
     DefaultConfig

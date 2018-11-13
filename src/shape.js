@@ -37,15 +37,16 @@ export class Shape {
 
 	render(ctx) {}
 
-	serialize() { return { type: 'Shape'} }
+	serialize() { return { shape_type: 'Shape'} }
 
 	static deserialize(serialization) {
-		let ctor = ShapeMap[serialization.type];
+		let ctor = ShapeMap[serialization.shape_type];
 		let shape = new ctor();
 
 		Object.keys(serialization).forEach(
-			key => key != 'type' && (shape[key] = serialization[key])
+			key => key != 'shape_type' && (shape[key] = serialization[key])
 		);
+		return shape;
 	}
 }
 
@@ -126,9 +127,9 @@ class Polygon extends Shape {
 
 	serialize() {
 		let super_serialization = super.serialize();
-		super_serialization.type = 'Polygon';
+		super_serialization.shape_type = 'Polygon';
 		return {
-			super_serialization,
+			...super_serialization,
 			points: this.points
 		}
 	}
@@ -149,7 +150,7 @@ class Line extends Polygon {
 
 	serialize() {
 		let super_serialization = super.serialize();
-		super_serialization.type = 'Line';
+		super_serialization.shape_type = 'Line';
 		return super_serialization;
 	}
 }
@@ -161,7 +162,7 @@ class Triangle extends Polygon {
 
 	serialize() {
 		let super_serialization = super.serialize();
-		super_serialization.type = 'Triangle';
+		super_serialization.shape_type = 'Triangle';
 		return super_serialization;
 	}
 }
@@ -235,9 +236,9 @@ class Rectangle extends Polygon {
 
 	serialize() { 
 		let super_serialization = super.serialize();
-		super_serialization.type = 'Rectangle';
+		super_serialization['shape_type'] = 'Rectangle';
 		return {
-			super_serialization,
+			...super_serialization,
 			angle: this.angle
 		}
 	}
@@ -302,9 +303,9 @@ class Ellipse extends Shape {
 
 	serialize() {
 		let super_serialization = super.serialize();
-		super_serialization.type = 'Ellipse';
+		super_serialization.shape_type = 'Ellipse';
 		return {
-			super_serialization,
+			...super_serialization,
 			center: this.center,
 			rx: this.rx,
 			ry: this.ry
@@ -331,7 +332,7 @@ class Bezier extends Polygon {
 
 	serialize() {
 		let super_serialization = super.serialize();
-		super_serialization.type = 'Bezier';
+		super_serialization.shape_type = 'Bezier';
 		return super_serialization;
 	}
 }

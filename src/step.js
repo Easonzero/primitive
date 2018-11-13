@@ -1,12 +1,13 @@
-import * as util from "./util.js";
-import State from "./state.js";
+import * as util from "./util";
+import State from "./state";
+import {Shape} from "./shape";
 
 /* Step: a Shape, color and alpha */
 export default class Step {
 	constructor(shape, cfg) {
 		this.shape = shape;
 		this.cfg = cfg;
-		this.alpha = cfg.alpha;
+		this.alpha = cfg?cfg.alpha:1.;
 		
 		/* these two are computed during the .compute() call */
 		this.color = "#000";
@@ -48,5 +49,21 @@ export default class Step {
 			mutated.alpha = util.clamp(mutatedAlpha, .1, 1);
 		}
 		return mutated;
+	}
+
+	serialize() { 
+		return { 
+			alpha: this.alpha,
+			color: this.color,
+			shape: this.shape.serialize()
+		} 
+	}
+
+	static deserialize(json){
+		let step = new Step();
+		step.shape = Shape.deserialize(json.shape);
+		step.color = json.color;
+		step.alpha = json.alpha;
+		return step;
 	}
 }

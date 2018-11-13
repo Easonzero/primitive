@@ -2,6 +2,7 @@ import Canvas from "./src/canvas";
 import {getFill, getScale} from "./src/util";
 import Optimizer from "./src/optimizer";
 import { ShapeMap } from "./src/shape"
+import Step from "./src/step";
 
 const Pure = (url, cfg) => new Promise(resolve => {
     let img = new Image();
@@ -49,6 +50,7 @@ const DefaultConfig = () => ({
 window.$P = window.primitive = {
     Canvas,
     Optimizer,
+    Step,
     ShapeMap,
     Pure,
     DefaultConfig
