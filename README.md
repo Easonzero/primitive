@@ -10,6 +10,8 @@ This project works on the ondras/primitive.js, adding some features to that.
 
 - rotatable rectangle
 - bezier and straight line
+- heart shape
+- shapes cache exported by pre-calculating
 - packed by rollup.js and provide some interfaces used by your program
 - no svg
 
