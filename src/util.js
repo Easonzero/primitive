@@ -159,3 +159,20 @@ export function getScale(width, height, limit) {
 export function centerPoint(p1, p2){
 	return [(p1[0]+p2[0])/2, (p1[1]+p2[1])/2]
 }
+
+export function toVector(p1, p2){
+	return [(p2[0] - p1[0]), (p2[1] - p1[1])]
+}
+
+export function vectorx(v, k){
+	return [k*v[0], k*v[1]]
+}
+
+export function toPoint(base, ...vs){
+	let result = [...base];
+	for(let v of vs){
+		result[0] += v[0];
+		result[1] += v[1];
+	}
+	return result;
+}

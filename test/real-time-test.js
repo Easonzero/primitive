@@ -2,7 +2,7 @@ let dst;
 let json = {steps:[]};
 function init(url) {
     let cfg = $P.DefaultConfig();
-    cfg.shapeTypes = [$P.ShapeMap.Line, $P.ShapeMap.Rectangle, $P.ShapeMap.Bezier]
+    cfg.shapeTypes = [$P.ShapeMap.Line, $P.ShapeMap.Heart, $P.ShapeMap.Bezier]
     $P.Pure(url, cfg).then((ori) => {
         let optimizer = new $P.Optimizer(ori, cfg);
         dst = $P.Canvas.empty(cfg);

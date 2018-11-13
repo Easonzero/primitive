@@ -1,5 +1,5 @@
 import Canvas from "./canvas";
-import { centerPoint } from "./util"
+import { centerPoint, toVector, toPoint, vectorx } from "./util"
 
 /* Shape: a geometric primitive with a bbox */
 export class Shape {
@@ -261,6 +261,7 @@ class Ellipse extends Shape {
 		ctx.beginPath();
 		ctx.ellipse(this.center[0], this.center[1], this.rx, this.ry, 0, 0, 2*Math.PI, false);
 		ctx.fill();
+		ctx.closePath()
 	}
 
 	mutate(cfg) {
@@ -337,10 +338,73 @@ class Bezier extends Polygon {
 	}
 }
 
+class Heart extends Triangle {
+	init() {
+		this.points = this._createPoints();
+		this.computeBbox();
+		this.center = this._createCenterPoint();
+		return this;
+	}
+
+	render(ctx) {
+		ctx.beginPath()
+		ctx.moveTo(this.points[0][0], this.points[0][1]);
+		ctx.quadraticCurveTo(
+			this.points[1][0], this.points[1][1],
+			this.center[0], this.center[1]
+		);
+		ctx.moveTo(this.points[0][0], this.points[0][1]);
+		ctx.quadraticCurveTo(
+			this.points[2][0], this.points[2][1],
+			this.center[0], this.center[1]
+		);
+		ctx.fill();
+		ctx.closePath()
+	}
+
+	mutate(cfg) {
+		let clone = new this.constructor(0, 0);
+		clone.points = this.points.map(point => point.slice());
+
+		let index = Math.floor(Math.random() * this.points.length);
+		let point = clone.points[index];
+
+		let angle = Math.random() * 2 * Math.PI;
+		let radius = Math.random() * 20;
+		point[0] += ~~(radius * Math.cos(angle));
+		point[1] += ~~(radius * Math.sin(angle));
+
+		this.center = this._createCenterPoint();
+
+		return clone.computeBbox();
+	}
+
+	_createCenterPoint(){
+		let ax = toVector(this.points[0], this.points[1]);
+		let ay = toVector(this.points[0], this.points[2]);
+		
+		return toPoint(
+			this.points[0], 
+			vectorx(ax, Math.random()), 
+			vectorx(ay, Math.random())
+		);
+	}
+
+	serialize() {
+		let super_serialization = super.serialize();
+		super_serialization.shape_type = 'Heart';
+		return {
+			...super_serialization,
+			center: this.center
+		}
+	}
+}
+
 export const ShapeMap = {
 	Ellipse: Ellipse,
 	Rectangle: Rectangle,
 	Triangle: Triangle,
 	Bezier: Bezier,
-	Line: Line
+	Line: Line,
+	Heart: Heart
 };
