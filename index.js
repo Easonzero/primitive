@@ -44,7 +44,7 @@ const DefaultConfig = () => ({
     scale: 1,
     shapeTypes: [ShapeMap.bezier],
     shapes: 200,
-    steps: 500,
+    steps: 1000,
 });
 
 window.$P = window.primitive = {

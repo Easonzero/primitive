@@ -156,8 +156,9 @@ export function getScale(width, height, limit) {
     return Math.max(width / limit, height / limit, 1);
 }
 
-export function centerPoint(p1, p2){
-	return [(p1[0]+p2[0])/2, (p1[1]+p2[1])/2]
+export function centerPoint(...ps){
+	let sum = ps.reduce((r,x)=>[r[0]+x[0],r[1]+x[1]]);
+	return [sum[0]/ps.length, sum[1]/ps.length]
 }
 
 export function toVector(p1, p2){

@@ -146,16 +146,13 @@ function getScale(width, height, limit) {
     return Math.max(width / limit, height / limit, 1);
 }
 
-function centerPoint(p1, p2){
-	return [(p1[0]+p2[0])/2, (p1[1]+p2[1])/2]
+function centerPoint(...ps){
+	let sum = ps.reduce((r,x)=>[r[0]+x[0],r[1]+x[1]]);
+	return [sum[0]/ps.length, sum[1]/ps.length]
 }
 
 function toVector(p1, p2){
 	return [(p2[0] - p1[0]), (p2[1] - p1[1])]
-}
-
-function vectorx(v, k){
-	return [k*v[0], k*v[1]]
 }
 
 function toPoint(base, ...vs){
@@ -481,7 +478,7 @@ class Ellipse extends Shape {
 	}
 
 	init(){
-		this.center = Shape.randomPoint(w, h);
+		this.center = Shape.randomPoint(this.w, this.h);
 		this.rx = 1 + ~~(Math.random() * 20);
 		this.ry = 1 + ~~(Math.random() * 20);
 		this.computeBbox();
@@ -578,14 +575,19 @@ class Heart extends Triangle {
 	}
 
 	render(ctx) {
+		let v = toVector(this.center, this.points[0]);
+		let p1down = toPoint(this.points[1], v);
+		let p2down = toPoint(this.points[2], v);
 		ctx.beginPath();
 		ctx.moveTo(this.points[0][0], this.points[0][1]);
-		ctx.quadraticCurveTo(
+		ctx.bezierCurveTo(
+			p1down[0], p1down[1],
 			this.points[1][0], this.points[1][1],
 			this.center[0], this.center[1]
 		);
 		ctx.moveTo(this.points[0][0], this.points[0][1]);
-		ctx.quadraticCurveTo(
+		ctx.bezierCurveTo(
+			p2down[0], p2down[1],
 			this.points[2][0], this.points[2][1],
 			this.center[0], this.center[1]
 		);
@@ -604,21 +606,24 @@ class Heart extends Triangle {
 		let radius = Math.random() * 20;
 		point[0] += ~~(radius * Math.cos(angle));
 		point[1] += ~~(radius * Math.sin(angle));
-
-		this.center = this._createCenterPoint();
+        clone.center = clone._createCenterPoint();
 
 		return clone.computeBbox();
 	}
 
+	// _createCenterPoint(){
+	// 	let ax = toVector(this.points[0], this.points[1]);
+	// 	let ay = toVector(this.points[0], this.points[2]);
+	//
+	// 	return toPoint(
+	// 		this.points[0],
+	// 		vectorx(ax, Math.random()),
+	// 		vectorx(ay, Math.random())
+	// 	);
+	// }
+
 	_createCenterPoint(){
-		let ax = toVector(this.points[0], this.points[1]);
-		let ay = toVector(this.points[0], this.points[2]);
-		
-		return toPoint(
-			this.points[0], 
-			vectorx(ax, Math.random()), 
-			vectorx(ay, Math.random())
-		);
+        return centerPoint(...this.points)
 	}
 
 	serialize() {
@@ -842,7 +847,7 @@ const DefaultConfig = () => ({
     scale: 1,
     shapeTypes: [ShapeMap.bezier],
     shapes: 200,
-    steps: 500,
+    steps: 1000,
 });
 
 window.$P = window.primitive = {
