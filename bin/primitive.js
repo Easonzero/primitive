@@ -1,8 +1,7 @@
-(function (global, factory) {
-	typeof exports === 'object' && typeof module !== 'undefined' ? factory() :
+(function (factory) {
 	typeof define === 'function' && define.amd ? define(factory) :
-	(factory());
-}(this, (function () { 'use strict';
+	factory();
+}(function () { 'use strict';
 
 	function clamp(x, min, max) {
 		return Math.max(min, Math.min(max, x));
@@ -13,19 +12,19 @@
 	}
 
 	function distanceToDifference(distance, pixels) {
-		return Math.pow(distance*255, 2) * (3 * pixels);
+		return Math.pow(distance * 255, 2) * (3 * pixels);
 	}
 
 	function differenceToDistance(difference, pixels) {
-		return Math.sqrt(difference / (3 * pixels))/255;
+		return Math.sqrt(difference / (3 * pixels)) / 255;
 	}
 
 	function difference(data, dataOther) {
 		let sum = 0, diff;
-		for (let i=0;i<data.data.length;i++) {
+		for (let i = 0; i < data.data.length; i++) {
 			if (i % 4 == 3) { continue; }
-			diff = dataOther.data[i]-data.data[i];
-			sum = sum + diff*diff;
+			diff = dataOther.data[i] - data.data[i];
+			sum = sum + diff * diff;
 		}
 
 		return sum;
@@ -33,7 +32,7 @@
 
 	function computeColor(offset, imageData, alpha) {
 		let color = [0, 0, 0];
-		let {shape, current, target} = imageData;
+		let { shape, current, target } = imageData;
 		let shapeData = shape.data;
 		let currentData = current.data;
 		let targetData = target.data;
@@ -45,31 +44,31 @@
 		let fh = current.height;
 		let count = 0;
 
-		for (sy=0; sy<sh; sy++) {
+		for (sy = 0; sy < sh; sy++) {
 			fy = sy + offset.top;
 			if (fy < 0 || fy >= fh) { continue; } /* outside of the large canvas (vertically) */
 
-			for (sx=0; sx<sw; sx++) {
+			for (sx = 0; sx < sw; sx++) {
 				fx = offset.left + sx;
 				if (fx < 0 || fx >= fw) { continue; } /* outside of the large canvas (horizontally) */
 
-				si = 4*(sx + sy*sw); /* shape (local) index */
-				if (shapeData[si+3] == 0) { continue; } /* only where drawn */
+				si = 4 * (sx + sy * sw); /* shape (local) index */
+				if (shapeData[si + 3] == 0) { continue; } /* only where drawn */
 
-				fi = 4*(fx + fy*fw); /* full (global) index */
+				fi = 4 * (fx + fy * fw); /* full (global) index */
 				color[0] += (targetData[fi] - currentData[fi]) / alpha + currentData[fi];
-				color[1] += (targetData[fi+1] - currentData[fi+1]) / alpha + currentData[fi+1];
-				color[2] += (targetData[fi+2] - currentData[fi+2]) / alpha + currentData[fi+2];
+				color[1] += (targetData[fi + 1] - currentData[fi + 1]) / alpha + currentData[fi + 1];
+				color[2] += (targetData[fi + 2] - currentData[fi + 2]) / alpha + currentData[fi + 2];
 
 				count++;
 			}
 		}
 
-		return color.map(x => ~~(x/count)).map(clampColor);
+		return color.map(x => ~~(x / count)).map(clampColor);
 	}
 
 	function computeDifferenceChange(offset, imageData, color) {
-		let {shape, current, target} = imageData;
+		let { shape, current, target } = imageData;
 		let shapeData = shape.data;
 		let currentData = current.data;
 		let targetData = target.data;
@@ -83,32 +82,32 @@
 
 		var sum = 0; /* V8 opt bailout with let */
 
-		for (sy=0; sy<sh; sy++) {
+		for (sy = 0; sy < sh; sy++) {
 			fy = sy + offset.top;
 			if (fy < 0 || fy >= fh) { continue; } /* outside of the large canvas (vertically) */
 
-			for (sx=0; sx<sw; sx++) {
+			for (sx = 0; sx < sw; sx++) {
 				fx = offset.left + sx;
 				if (fx < 0 || fx >= fw) { continue; } /* outside of the large canvas (horizontally) */
 
-				si = 4*(sx + sy*sw); /* shape (local) index */
-				a = shapeData[si+3];
+				si = 4 * (sx + sy * sw); /* shape (local) index */
+				a = shapeData[si + 3];
 				if (a == 0) { continue; } /* only where drawn */
 
-				fi = 4*(fx + fy*fw); /* full (global) index */
+				fi = 4 * (fx + fy * fw); /* full (global) index */
 
-				a = a/255;
-				b = 1-a;
-				d1r = targetData[fi]-currentData[fi];
-				d1g = targetData[fi+1]-currentData[fi+1];
-				d1b = targetData[fi+2]-currentData[fi+2];
+				a = a / 255;
+				b = 1 - a;
+				d1r = targetData[fi] - currentData[fi];
+				d1g = targetData[fi + 1] - currentData[fi + 1];
+				d1b = targetData[fi + 2] - currentData[fi + 2];
 
-				d2r = targetData[fi] - (color[0]*a + currentData[fi]*b);
-				d2g = targetData[fi+1] - (color[1]*a + currentData[fi+1]*b);
-				d2b = targetData[fi+2] - (color[2]*a + currentData[fi+2]*b);
+				d2r = targetData[fi] - (color[0] * a + currentData[fi] * b);
+				d2g = targetData[fi + 1] - (color[1] * a + currentData[fi + 1] * b);
+				d2b = targetData[fi + 2] - (color[2] * a + currentData[fi + 2] * b);
 
-				sum -= d1r*d1r + d1g*d1g + d1b*d1b;
-				sum += d2r*d2r + d2g*d2g + d2b*d2b;
+				sum -= d1r * d1r + d1g * d1g + d1b * d1b;
+				sum += d2r * d2r + d2g * d2g + d2b * d2b;
 			}
 		}
 
@@ -121,49 +120,49 @@
 
 		let color = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 
-		return {color, differenceChange};
+		return { color, differenceChange };
 	}
 
 	function getFill(canvas) {
-	    let data = canvas.getImageData();
-	    let w = data.width;
-	    let h = data.height;
-	    let d = data.data;
-	    let rgb = [0, 0, 0];
-	    let count = 0;
-	    let i;
+		let data = canvas.getImageData();
+		let w = data.width;
+		let h = data.height;
+		let d = data.data;
+		let rgb = [0, 0, 0];
+		let count = 0;
+		let i;
 
-	    for (let x=0; x<w; x++) {
-	        for (let y=0; y<h; y++) {
-	            if (x > 0 && y > 0 && x < w-1 && y < h-1) { continue; }
-	            count++;
-	            i = 4*(x + y*w);
-	            rgb[0] += d[i];
-	            rgb[1] += d[i+1];
-	            rgb[2] += d[i+2];
-	        }
-	    }
+		for (let x = 0; x < w; x++) {
+			for (let y = 0; y < h; y++) {
+				if (x > 0 && y > 0 && x < w - 1 && y < h - 1) { continue; }
+				count++;
+				i = 4 * (x + y * w);
+				rgb[0] += d[i];
+				rgb[1] += d[i + 1];
+				rgb[2] += d[i + 2];
+			}
+		}
 
-	    rgb = rgb.map(x => ~~(x/count)).map(util.clampColor);
-	    return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+		rgb = rgb.map(x => ~~(x / count)).map(util.clampColor);
+		return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 	}
 
 	function getScale(width, height, limit) {
-	    return Math.max(width / limit, height / limit, 1);
+		return Math.max(width / limit, height / limit, 1);
 	}
 
-	function centerPoint(...ps){
-		let sum = ps.reduce((r,x)=>[r[0]+x[0],r[1]+x[1]]);
-		return [sum[0]/ps.length, sum[1]/ps.length]
+	function centerPoint(...ps) {
+		let sum = ps.reduce((r, x) => [r[0] + x[0], r[1] + x[1]]);
+		return [sum[0] / ps.length, sum[1] / ps.length]
 	}
 
-	function toVector(p1, p2){
+	function toVector(p1, p2) {
 		return [(p2[0] - p1[0]), (p2[1] - p1[1])]
 	}
 
-	function toPoint(base, ...vs){
+	function toPoint(base, ...vs) {
 		let result = [...base];
-		for(let v of vs){
+		for (let v of vs) {
 			result[0] += v[0];
 			result[1] += v[1];
 		}
@@ -172,58 +171,58 @@
 
 	/* Canvas: a wrapper around a <canvas> element */
 	class Canvas {
-	    constructor(width, height) {
-	        this.node = document.createElement("canvas");
-	        this.node.width = width;
-	        this.node.height = height;
-	        this.ctx = this.node.getContext("2d");
+		constructor(width, height) {
+			this.node = document.createElement("canvas");
+			this.node.width = width;
+			this.node.height = height;
+			this.ctx = this.node.getContext("2d");
 			this._imageData = null;
-	    }
+		}
 
-	    static empty(cfg) {
-			let canvas = new Canvas(cfg.scale*cfg.width, cfg.scale*cfg.height).fill(cfg.fill);
+		static empty(cfg) {
+			let canvas = new Canvas(cfg.scale * cfg.width, cfg.scale * cfg.height).fill(cfg.fill);
 			canvas.ctx.scale(cfg.scale, cfg.scale);
 			return canvas;
-	    }
+		}
 
-	    clone() {
-	        let otherCanvas = new this.constructor(this.node.width, this.node.height);
-	        otherCanvas.ctx.drawImage(this.node, 0, 0);
-	        return otherCanvas;
-	    }
+		clone() {
+			let otherCanvas = new this.constructor(this.node.width, this.node.height);
+			otherCanvas.ctx.drawImage(this.node, 0, 0);
+			return otherCanvas;
+		}
 
-	    fill(color) {
-	        this.ctx.fillStyle = color;
-	        this.ctx.fillRect(0, 0, this.node.width, this.node.height);
-	        return this;
-	    }
+		fill(color) {
+			this.ctx.fillStyle = color;
+			this.ctx.fillRect(0, 0, this.node.width, this.node.height);
+			return this;
+		}
 
-	    getImageData() {
-	        if (!this._imageData) {
-	            this._imageData = this.ctx.getImageData(0, 0, this.node.width, this.node.height);
-	        }
-	        return this._imageData;
-	    }
+		getImageData() {
+			if (!this._imageData) {
+				this._imageData = this.ctx.getImageData(0, 0, this.node.width, this.node.height);
+			}
+			return this._imageData;
+		}
 
-	    difference(otherCanvas) {
-	        let data = this.getImageData();
-	        let dataOther = otherCanvas.getImageData();
+		difference(otherCanvas) {
+			let data = this.getImageData();
+			let dataOther = otherCanvas.getImageData();
 
-	        return difference(data, dataOther);
-	    }
+			return difference(data, dataOther);
+		}
 
-	    distance(otherCanvas) {
-	        let difference$$1 = this.difference(otherCanvas);
-	        return differenceToDistance(difference$$1, this.node.width * this.node.height);
-	    }
+		distance(otherCanvas) {
+			let difference$$1 = this.difference(otherCanvas);
+			return differenceToDistance(difference$$1, this.node.width * this.node.height);
+		}
 
-	    drawStep(step) {
-	        this.ctx.globalAlpha = step.alpha;
+		drawStep(step) {
+			this.ctx.globalAlpha = step.alpha;
 			this.ctx.fillStyle = step.color;
 			this.ctx.strokeStyle = step.color;
-	        step.shape.render(this.ctx);
-	        return this;
-	    }
+			step.shape.render(this.ctx);
+			return this;
+		}
 	}
 
 	/* State: target canvas, current canvas and a distance value */
@@ -238,7 +237,7 @@
 	/* Shape: a geometric primitive with a bbox */
 	class Shape {
 		static randomPoint(width, height) {
-			return [~~(Math.random()*width), ~~(Math.random()*height)];
+			return [~~(Math.random() * width), ~~(Math.random() * height)];
 		}
 
 		static create(cfg) {
@@ -254,12 +253,12 @@
 			this.h = h;
 		}
 
-		init(){ return this; }
+		init() { return this; }
 
 		mutate(cfg) { return this; }
 
 		/* get a new smaller canvas with this shape */
-		rasterize(alpha) { 
+		rasterize(alpha) {
 			let canvas = new Canvas(this.bbox.width, this.bbox.height);
 			let ctx = canvas.ctx;
 			ctx.fillStyle = "#000";
@@ -269,9 +268,9 @@
 			return canvas;
 		}
 
-		render(ctx) {}
+		render(ctx) { }
 
-		serialize() { return { shape_type: 'Shape'} }
+		serialize() { return { shape_type: 'Shape' } }
 
 		static deserialize(serialization) {
 			let ctor = ShapeMap[serialization.shape_type];
@@ -290,7 +289,7 @@
 			this.count = count;
 		}
 
-		init(){
+		init() {
 			this.points = this._createPoints();
 			this.computeBbox();
 			return this;
@@ -337,8 +336,8 @@
 			this.bbox = {
 				left: min[0],
 				top: min[1],
-				width: (max[0]-min[0]) || 1, /* fallback for deformed shapes */
-				height: (max[1]-min[1]) || 1
+				width: (max[0] - min[0]) || 1, /* fallback for deformed shapes */
+				height: (max[1] - min[1]) || 1
 			};
 
 			return this;
@@ -348,7 +347,7 @@
 			let first = Shape.randomPoint(this.w, this.h);
 			let points = [first];
 
-			for (let i=1;i<this.count;i++) {
+			for (let i = 1; i < this.count; i++) {
 				let angle = Math.random() * 2 * Math.PI;
 				let radius = Math.random() * 20;
 				points.push([
@@ -407,7 +406,7 @@
 			this.angle = 0;
 		}
 
-		render(ctx){
+		render(ctx) {
 			ctx.save();
 			let center = centerPoint(this.points[0], this.points[2]);
 			ctx.translate(center[0], center[1]);
@@ -421,31 +420,31 @@
 			let clone = new this.constructor(0, 0);
 			clone.points = this.points.map(point => point.slice());
 
-			let amount = ~~((Math.random()-0.5) * 20);
+			let amount = ~~((Math.random() - 0.5) * 20);
 
-			switch (Math.floor(Math.random()*8)) {
+			switch (Math.floor(Math.random() * 8)) {
 				case 0: /* left */
 					clone.points[0][0] += amount;
 					clone.points[3][0] += amount;
-				break;
+					break;
 				case 1: /* top */
 					clone.points[0][1] += amount;
 					clone.points[1][1] += amount;
-				break;
+					break;
 				case 2: /* right */
 					clone.points[1][0] += amount;
 					clone.points[2][0] += amount;
-				break;
+					break;
 				case 3: /* bottom */
 					clone.points[2][1] += amount;
 					clone.points[3][1] += amount;
-				break;
+					break;
 				case 4:
 				case 5:
 				case 6:
 				case 7:
 					clone.angle = (amount / 20 + 0.5) * Math.PI;
-				break;
+					break;
 			}
 
 			return clone.computeBbox();
@@ -468,7 +467,7 @@
 			];
 		}
 
-		serialize() { 
+		serialize() {
 			let super_serialization = super.serialize();
 			super_serialization['shape_type'] = 'Rectangle';
 			return {
@@ -483,7 +482,7 @@
 			super(w, h);
 		}
 
-		init(){
+		init() {
 			this.center = Shape.randomPoint(this.w, this.h);
 			this.rx = 1 + ~~(Math.random() * 20);
 			this.ry = 1 + ~~(Math.random() * 20);
@@ -493,7 +492,7 @@
 
 		render(ctx) {
 			ctx.beginPath();
-			ctx.ellipse(this.center[0], this.center[1], this.rx, this.ry, 0, 0, 2*Math.PI, false);
+			ctx.ellipse(this.center[0], this.center[1], this.rx, this.ry, 0, 0, 2 * Math.PI, false);
 			ctx.fill();
 			ctx.closePath();
 		}
@@ -504,23 +503,23 @@
 			clone.rx = this.rx;
 			clone.ry = this.ry;
 
-			switch (Math.floor(Math.random()*3)) {
+			switch (Math.floor(Math.random() * 3)) {
 				case 0:
 					let angle = Math.random() * 2 * Math.PI;
 					let radius = Math.random() * 20;
 					clone.center[0] += ~~(radius * Math.cos(angle));
 					clone.center[1] += ~~(radius * Math.sin(angle));
-				break;
+					break;
 
 				case 1:
-					clone.rx += (Math.random()-0.5) * 20;
+					clone.rx += (Math.random() - 0.5) * 20;
 					clone.rx = Math.max(1, ~~clone.rx);
-				break;
+					break;
 
 				case 2:
-					clone.ry += (Math.random()-0.5) * 20;
+					clone.ry += (Math.random() - 0.5) * 20;
 					clone.ry = Math.max(1, ~~clone.ry);
-				break;
+					break;
 			}
 
 			return clone.computeBbox();
@@ -530,8 +529,8 @@
 			this.bbox = {
 				left: this.center[0] - this.rx,
 				top: this.center[1] - this.ry,
-				width: 2*this.rx,
-				height: 2*this.ry
+				width: 2 * this.rx,
+				height: 2 * this.ry
 			};
 			return this;
 		}
@@ -557,7 +556,7 @@
 			ctx.beginPath();
 			ctx.moveTo(this.points[0][0], this.points[0][1]);
 			ctx.bezierCurveTo(
-				this.points[1][0], this.points[1][1], 
+				this.points[1][0], this.points[1][1],
 				this.points[2][0], this.points[2][1],
 				this.points[3][0], this.points[3][1]
 			);
@@ -612,7 +611,7 @@
 			let radius = Math.random() * 20;
 			point[0] += ~~(radius * Math.cos(angle));
 			point[1] += ~~(radius * Math.sin(angle));
-	        clone.center = clone._createCenterPoint();
+			clone.center = clone._createCenterPoint();
 
 			return clone.computeBbox();
 		}
@@ -628,8 +627,8 @@
 		// 	);
 		// }
 
-		_createCenterPoint(){
-	        return centerPoint(...this.points)
+		_createCenterPoint() {
+			return centerPoint(...this.points)
 		}
 
 		serialize() {
@@ -656,8 +655,8 @@
 		constructor(shape, cfg) {
 			this.shape = shape;
 			this.cfg = cfg;
-			this.alpha = cfg?cfg.alpha:1.;
-			
+			this.alpha = cfg ? cfg.alpha : 1.;
+
 			/* these two are computed during the .compute() call */
 			this.color = "#000";
 			this.distance = Infinity;
@@ -680,7 +679,7 @@
 				target: state.target.getImageData()
 			};
 
-			let {color, differenceChange} = computeColorAndDifferenceChange(offset, imageData, this.alpha);
+			let { color, differenceChange } = computeColorAndDifferenceChange(offset, imageData, this.alpha);
 			this.color = color;
 			let currentDifference = distanceToDifference(state.distance, pixels);
 			// if (-differenceChange > currentDifference) debugger;
@@ -694,21 +693,21 @@
 			let newShape = this.shape.mutate(this.cfg);
 			let mutated = new this.constructor(newShape, this.cfg);
 			if (this.cfg.mutateAlpha) {
-				let mutatedAlpha = this.alpha + (Math.random()-0.5) * 0.08;
+				let mutatedAlpha = this.alpha + (Math.random() - 0.5) * 0.08;
 				mutated.alpha = clamp(mutatedAlpha, .1, 1);
 			}
 			return mutated;
 		}
 
-		serialize() { 
-			return { 
+		serialize() {
+			return {
 				alpha: this.alpha,
 				color: this.color,
 				shape: this.shape.serialize()
-			} 
+			}
 		}
 
-		static deserialize(json){
+		static deserialize(json) {
 			let step = new Step();
 			step.shape = Shape.deserialize(json.shape);
 			step.color = json.color;
@@ -722,7 +721,7 @@
 			this.cfg = cfg;
 			this.state = new State(original, Canvas.empty(cfg));
 			this._steps = 0;
-			this.onStep = () => {};
+			this.onStep = () => { };
 			console.log("initial distance %s", this.state.distance);
 		}
 
@@ -762,7 +761,7 @@
 			let bestStep = null;
 			let promises = [];
 
-			for (let i=0;i<LIMIT;i++) {
+			for (let i = 0; i < LIMIT; i++) {
 				let shape = Shape.create(this.cfg);
 
 				let promise = new Step(shape, this.cfg).compute(this.state).then(step => {
@@ -801,7 +800,7 @@
 					} else { /* failure */
 						failedAttempts++;
 					}
-					
+
 					// requestAnimationFrame(tryMutation);
 					tryMutation();
 				});
@@ -865,4 +864,4 @@
 	    DefaultConfig
 	};
 
-})));
+}));

@@ -1,14 +1,14 @@
 import Step from "./step.js";
 import State from "./state.js";
 import Canvas from "./canvas.js";
-import {Shape} from "./shape.js";
+import { Shape } from "./shape.js";
 
 export default class Optimizer {
 	constructor(original, cfg) {
 		this.cfg = cfg;
 		this.state = new State(original, Canvas.empty(cfg));
 		this._steps = 0;
-		this.onStep = () => {};
+		this.onStep = () => { };
 		console.log("initial distance %s", this.state.distance);
 	}
 
@@ -48,7 +48,7 @@ export default class Optimizer {
 		let bestStep = null;
 		let promises = [];
 
-		for (let i=0;i<LIMIT;i++) {
+		for (let i = 0; i < LIMIT; i++) {
 			let shape = Shape.create(this.cfg);
 
 			let promise = new Step(shape, this.cfg).compute(this.state).then(step => {
@@ -87,7 +87,7 @@ export default class Optimizer {
 				} else { /* failure */
 					failedAttempts++;
 				}
-				
+
 				// requestAnimationFrame(tryMutation);
 				tryMutation();
 			});
