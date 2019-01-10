@@ -9,6 +9,7 @@ export default class Optimizer {
 		this.state = new State(original, Canvas.empty(cfg));
 		this._steps = 0;
 		this.onStep = () => { };
+		this.onEnd = () => { };
 		console.log("initial distance %s", this.state.distance);
 	}
 
@@ -39,6 +40,7 @@ export default class Optimizer {
 			console.log("target distance %s", this.state.distance);
 			console.log("real target distance %s", this.state.target.distance(this.state.canvas));
 			console.log("finished in %s", time);
+			this.onEnd(this.state);
 		}
 	}
 

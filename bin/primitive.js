@@ -143,7 +143,7 @@
 			}
 		}
 
-		rgb = rgb.map(x => ~~(x / count)).map(util.clampColor);
+		rgb = rgb.map(x => ~~(x / count)).map(clampColor);
 		return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 	}
 
@@ -722,6 +722,7 @@
 			this.state = new State(original, Canvas.empty(cfg));
 			this._steps = 0;
 			this.onStep = () => { };
+			this.onEnd = () => { };
 			console.log("initial distance %s", this.state.distance);
 		}
 
@@ -752,6 +753,7 @@
 				console.log("target distance %s", this.state.distance);
 				console.log("real target distance %s", this.state.target.distance(this.state.canvas));
 				console.log("finished in %s", time);
+				this.onEnd(this.state);
 			}
 		}
 
@@ -813,55 +815,55 @@
 	}
 
 	const Pure = (url, cfg) => new Promise(resolve => {
-	    let img = new Image();
-	    img.crossOrigin = true;
-	    img.src = url;
-	    img.onload = e => {
-	        let w = img.naturalWidth;
-	        let h = img.naturalHeight;
-	        let computeScale = getScale(w, h, cfg.computeSize);
-	        cfg.width = w / computeScale;
-	        cfg.height = h / computeScale;
+		let img = new Image();
+		img.crossOrigin = true;
+		img.src = url;
+		img.onload = e => {
+			let w = img.naturalWidth;
+			let h = img.naturalHeight;
+			let computeScale = getScale(w, h, cfg.computeSize);
+			cfg.width = w / computeScale;
+			cfg.height = h / computeScale;
 
-	        let viewScale = getScale(w, h, cfg.viewSize);
+			let viewScale = getScale(w, h, cfg.viewSize);
 
-	        cfg.scale = computeScale / viewScale;
+			cfg.scale = computeScale / viewScale;
 
-	        let canvas = new Canvas(cfg.width, cfg.height).fill(cfg.fill);
-	        canvas.ctx.drawImage(img, 0, 0, cfg.width, cfg.height);
+			let canvas = new Canvas(cfg.width, cfg.height).fill(cfg.fill);
+			canvas.ctx.drawImage(img, 0, 0, cfg.width, cfg.height);
 
-	        if (cfg.fill === "auto") {
-	            cfg.fill = getFill(canvas);
-	        }
+			if (cfg.fill === "auto") {
+				cfg.fill = getFill(canvas);
+			}
 
-	        resolve(canvas, cfg);
-	    };
-	    img.onerror = e => {
-	        console.error(e);
-	        alert("The image URL cannot be loaded. Does the server support CORS?");
-	    };
+			resolve(canvas, cfg);
+		};
+		img.onerror = e => {
+			console.error(e);
+			alert("The image URL cannot be loaded. Does the server support CORS?");
+		};
 	});
 
 	const DefaultConfig = () => ({
-	    alpha: 0.5,
-	    computeSize: 512,
-	    viewSize: 512,
-	    fill: "rgb(255, 255, 255)",
-	    mutateAlpha: true,// auto detect alpha
-	    mutations: 30,// stop optimization nums
-	    scale: 1,
-	    shapeTypes: [ShapeMap.bezier],
-	    shapes: 200,
-	    steps: 1000,
+		alpha: 0.5,
+		computeSize: 512,
+		viewSize: 512,
+		fill: "rgb(255, 255, 255)",
+		mutateAlpha: true,// auto detect alpha
+		mutations: 30,// stop optimization nums
+		scale: 1,
+		shapeTypes: [ShapeMap.bezier],
+		shapes: 200,
+		steps: 1000,
 	});
 
 	window.$P = window.primitive = {
-	    Canvas,
-	    Optimizer,
-	    Step,
-	    ShapeMap,
-	    Pure,
-	    DefaultConfig
+		Canvas,
+		Optimizer,
+		Step,
+		ShapeMap,
+		Pure,
+		DefaultConfig
 	};
 
 }));

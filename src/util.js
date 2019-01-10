@@ -148,7 +148,7 @@ export function getFill(canvas) {
 		}
 	}
 
-	rgb = rgb.map(x => ~~(x / count)).map(util.clampColor);
+	rgb = rgb.map(x => ~~(x / count)).map(clampColor);
 	return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
 }
 
