@@ -4,7 +4,7 @@ import { centerPoint, toVector, toPoint, vectorx } from "./util"
 /* Shape: a geometric primitive with a bbox */
 export class Shape {
 	static randomPoint(width, height) {
-		return [~~(Math.random()*width), ~~(Math.random()*height)];
+		return [~~(Math.random() * width), ~~(Math.random() * height)];
 	}
 
 	static create(cfg) {
@@ -20,12 +20,12 @@ export class Shape {
 		this.h = h;
 	}
 
-	init(){ return this; }
+	init() { return this; }
 
 	mutate(cfg) { return this; }
 
 	/* get a new smaller canvas with this shape */
-	rasterize(alpha) { 
+	rasterize(alpha) {
 		let canvas = new Canvas(this.bbox.width, this.bbox.height);
 		let ctx = canvas.ctx;
 		ctx.fillStyle = "#000";
@@ -35,9 +35,9 @@ export class Shape {
 		return canvas;
 	}
 
-	render(ctx) {}
+	render(ctx) { }
 
-	serialize() { return { shape_type: 'Shape'} }
+	serialize() { return { shape_type: 'Shape' } }
 
 	static deserialize(serialization) {
 		let ctor = ShapeMap[serialization.shape_type];
@@ -56,7 +56,7 @@ class Polygon extends Shape {
 		this.count = count;
 	}
 
-	init(){
+	init() {
 		this.points = this._createPoints();
 		this.computeBbox();
 		return this;
@@ -103,8 +103,8 @@ class Polygon extends Shape {
 		this.bbox = {
 			left: min[0],
 			top: min[1],
-			width: (max[0]-min[0]) || 1, /* fallback for deformed shapes */
-			height: (max[1]-min[1]) || 1
+			width: (max[0] - min[0]) || 1, /* fallback for deformed shapes */
+			height: (max[1] - min[1]) || 1
 		};
 
 		return this;
@@ -114,7 +114,7 @@ class Polygon extends Shape {
 		let first = Shape.randomPoint(this.w, this.h);
 		let points = [first];
 
-		for (let i=1;i<this.count;i++) {
+		for (let i = 1; i < this.count; i++) {
 			let angle = Math.random() * 2 * Math.PI;
 			let radius = Math.random() * 20;
 			points.push([
@@ -173,7 +173,7 @@ class Rectangle extends Polygon {
 		this.angle = 0;
 	}
 
-	render(ctx){
+	render(ctx) {
 		ctx.save();
 		let center = centerPoint(this.points[0], this.points[2]);
 		ctx.translate(center[0], center[1]);
@@ -187,31 +187,31 @@ class Rectangle extends Polygon {
 		let clone = new this.constructor(0, 0);
 		clone.points = this.points.map(point => point.slice());
 
-		let amount = ~~((Math.random()-0.5) * 20);
+		let amount = ~~((Math.random() - 0.5) * 20);
 
-		switch (Math.floor(Math.random()*8)) {
+		switch (Math.floor(Math.random() * 8)) {
 			case 0: /* left */
 				clone.points[0][0] += amount;
 				clone.points[3][0] += amount;
-			break;
+				break;
 			case 1: /* top */
 				clone.points[0][1] += amount;
 				clone.points[1][1] += amount;
-			break;
+				break;
 			case 2: /* right */
 				clone.points[1][0] += amount;
 				clone.points[2][0] += amount;
-			break;
+				break;
 			case 3: /* bottom */
 				clone.points[2][1] += amount;
 				clone.points[3][1] += amount;
-			break;
+				break;
 			case 4:
 			case 5:
 			case 6:
 			case 7:
 				clone.angle = (amount / 20 + 0.5) * Math.PI;
-			break;
+				break;
 		}
 
 		return clone.computeBbox();
@@ -234,7 +234,7 @@ class Rectangle extends Polygon {
 		];
 	}
 
-	serialize() { 
+	serialize() {
 		let super_serialization = super.serialize();
 		super_serialization['shape_type'] = 'Rectangle';
 		return {
@@ -249,7 +249,7 @@ class Ellipse extends Shape {
 		super(w, h);
 	}
 
-	init(){
+	init() {
 		this.center = Shape.randomPoint(this.w, this.h);
 		this.rx = 1 + ~~(Math.random() * 20);
 		this.ry = 1 + ~~(Math.random() * 20);
@@ -259,7 +259,7 @@ class Ellipse extends Shape {
 
 	render(ctx) {
 		ctx.beginPath();
-		ctx.ellipse(this.center[0], this.center[1], this.rx, this.ry, 0, 0, 2*Math.PI, false);
+		ctx.ellipse(this.center[0], this.center[1], this.rx, this.ry, 0, 0, 2 * Math.PI, false);
 		ctx.fill();
 		ctx.closePath()
 	}
@@ -270,23 +270,23 @@ class Ellipse extends Shape {
 		clone.rx = this.rx;
 		clone.ry = this.ry;
 
-		switch (Math.floor(Math.random()*3)) {
+		switch (Math.floor(Math.random() * 3)) {
 			case 0:
 				let angle = Math.random() * 2 * Math.PI;
 				let radius = Math.random() * 20;
 				clone.center[0] += ~~(radius * Math.cos(angle));
 				clone.center[1] += ~~(radius * Math.sin(angle));
-			break;
+				break;
 
 			case 1:
-				clone.rx += (Math.random()-0.5) * 20;
+				clone.rx += (Math.random() - 0.5) * 20;
 				clone.rx = Math.max(1, ~~clone.rx);
-			break;
+				break;
 
 			case 2:
-				clone.ry += (Math.random()-0.5) * 20;
+				clone.ry += (Math.random() - 0.5) * 20;
 				clone.ry = Math.max(1, ~~clone.ry);
-			break;
+				break;
 		}
 
 		return clone.computeBbox();
@@ -296,8 +296,8 @@ class Ellipse extends Shape {
 		this.bbox = {
 			left: this.center[0] - this.rx,
 			top: this.center[1] - this.ry,
-			width: 2*this.rx,
-			height: 2*this.ry
+			width: 2 * this.rx,
+			height: 2 * this.ry
 		}
 		return this;
 	}
@@ -323,7 +323,7 @@ class Bezier extends Polygon {
 		ctx.beginPath()
 		ctx.moveTo(this.points[0][0], this.points[0][1]);
 		ctx.bezierCurveTo(
-			this.points[1][0], this.points[1][1], 
+			this.points[1][0], this.points[1][1],
 			this.points[2][0], this.points[2][1],
 			this.points[3][0], this.points[3][1]
 		);
@@ -378,7 +378,7 @@ class Heart extends Triangle {
 		let radius = Math.random() * 20;
 		point[0] += ~~(radius * Math.cos(angle));
 		point[1] += ~~(radius * Math.sin(angle));
-        clone.center = clone._createCenterPoint();
+		clone.center = clone._createCenterPoint();
 
 		return clone.computeBbox();
 	}
@@ -394,8 +394,8 @@ class Heart extends Triangle {
 	// 	);
 	// }
 
-	_createCenterPoint(){
-        return centerPoint(...this.points)
+	_createCenterPoint() {
+		return centerPoint(...this.points)
 	}
 
 	serialize() {

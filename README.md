@@ -15,6 +15,29 @@ This project works on the ondras/primitive.js, adding some features to that.
 - packed by rollup.js and provide some interfaces used by your program
 - no svg
 
+## Example Usage
+```js
+let image = 'input.jpg';
+let cfg = primitive.DefaultConfig();
+primitive.Pure(image, cfg).then(function(ori){
+	let optimizer = new primitive.Optimizer(ori, cfg);
+	let dst = primitive.Canvas.empty(cfg);
+	// select element to append the canvas to
+	document.querySelector("#result").innerHTML = "";
+	document.querySelector("#result").appendChild(dst.node);
+	// draw on dst.node canvas on each step
+	optimizer.onStep = function (step){
+		console.log('onStep', step);
+		dst.drawStep(step);
+	}
+	// drawing finished
+	optimizer.onEnd = function (state){
+		console.log('onEnd', state);
+	}
+	optimizer.start();
+});
+```
+
 ## How does it look?
 
 - use shapes including straight line, bezier and ratatable rectangle.
