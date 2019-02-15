@@ -3,3 +3,4 @@ node_modules
 .idea
 *.jpg
 steps.json
+.DS_Store
