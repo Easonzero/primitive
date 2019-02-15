@@ -37,8 +37,3 @@ primitive.Pure(image, cfg).then(function(ori){
 	optimizer.start();
 });
 ```
-
-## How does it look?
-
-- use shapes including straight line, bezier and ratatable rectangle.
-![output](test/output.png)

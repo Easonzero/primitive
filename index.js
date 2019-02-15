@@ -14,18 +14,17 @@ const Pure = (url, cfg) => new Promise(resolve => {
 		let computeScale = getScale(w, h, cfg.computeSize);
 		cfg.width = w / computeScale;
 		cfg.height = h / computeScale;
-
+		
 		let viewScale = getScale(w, h, cfg.viewSize);
 
 		cfg.scale = computeScale / viewScale;
-
+		
 		let canvas = new Canvas(cfg.width, cfg.height).fill(cfg.fill);
 		canvas.ctx.drawImage(img, 0, 0, cfg.width, cfg.height);
 
 		if (cfg.fill === "auto") {
 			cfg.fill = getFill(canvas);
 		}
-
 		resolve(canvas, cfg);
 	};
 	img.onerror = e => {

@@ -10,9 +10,18 @@ export default class Canvas {
 		this._imageData = null;
 	}
 
-	static empty(cfg) {
-		let canvas = new Canvas(cfg.scale * cfg.width, cfg.scale * cfg.height).fill(cfg.fill);
-		canvas.ctx.scale(cfg.scale, cfg.scale);
+	static empty(cfg, scale=false) {
+		let w = cfg.width;
+		let h = cfg.height;
+		if(scale){
+			w *= cfg.scale;
+			h *= cfg.scale;
+		}
+
+		let canvas = new Canvas(w, h).fill(cfg.fill);
+		
+		if(scale)
+			canvas.ctx.scale(cfg.scale, cfg.scale);
 		return canvas;
 	}
 

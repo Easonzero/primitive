@@ -174,9 +174,18 @@ class Canvas {
 		this._imageData = null;
 	}
 
-	static empty(cfg) {
-		let canvas = new Canvas(cfg.scale * cfg.width, cfg.scale * cfg.height).fill(cfg.fill);
-		canvas.ctx.scale(cfg.scale, cfg.scale);
+	static empty(cfg, scale=false) {
+		let w = cfg.width;
+		let h = cfg.height;
+		if(scale){
+			w *= cfg.scale;
+			h *= cfg.scale;
+		}
+
+		let canvas = new Canvas(w, h).fill(cfg.fill);
+		
+		if(scale)
+			canvas.ctx.scale(cfg.scale, cfg.scale);
 		return canvas;
 	}
 
@@ -718,7 +727,6 @@ class Optimizer {
 		this._steps = 0;
 		this.onStep = () => { };
 		this.onEnd = () => { };
-		console.log("initial distance %s", this.state.distance);
 	}
 
 	start() {
@@ -731,7 +739,6 @@ class Optimizer {
 			this._steps++;
 			if (step.distance < this.state.distance) { /* better than current state, epic */
 				this.state = step.apply(this.state);
-				console.log("switched to new state (%s) with distance: %s", this._steps, this.state.distance);
 				this.onStep(step);
 			} else { /* worse than current state, discard */
 				this.onStep(null);
@@ -745,9 +752,6 @@ class Optimizer {
 			setTimeout(() => this._addShape(), 10);
 		} else {
 			let time = Date.now() - this._ts;
-			console.log("target distance %s", this.state.distance);
-			console.log("real target distance %s", this.state.target.distance(this.state.canvas));
-			console.log("finished in %s", time);
 			this.onEnd(this.state);
 		}
 	}
@@ -774,9 +778,6 @@ class Optimizer {
 
 	_optimizeStep(step) {
 		const LIMIT = this.cfg.mutations;
-
-		let totalAttempts = 0;
-		let successAttempts = 0;
 		let failedAttempts = 0;
 		let resolve = null;
 		let bestStep = step;
@@ -784,21 +785,16 @@ class Optimizer {
 
 		let tryMutation = () => {
 			if (failedAttempts >= LIMIT) {
-				console.log("mutation optimized distance from %s to %s in (%s good, %s total) attempts", arguments[0].distance, bestStep.distance, successAttempts, totalAttempts);
 				return resolve(bestStep);
 			}
-
-			totalAttempts++;
 			bestStep.mutate().compute(this.state).then(mutatedStep => {
 				if (mutatedStep.distance < bestStep.distance) { /* success */
-					successAttempts++;
 					failedAttempts = 0;
 					bestStep = mutatedStep;
 				} else { /* failure */
 					failedAttempts++;
 				}
 
-				// requestAnimationFrame(tryMutation);
 				tryMutation();
 			});
 		};
@@ -819,18 +815,17 @@ const Pure = (url, cfg) => new Promise(resolve => {
 		let computeScale = getScale(w, h, cfg.computeSize);
 		cfg.width = w / computeScale;
 		cfg.height = h / computeScale;
-
+		
 		let viewScale = getScale(w, h, cfg.viewSize);
 
 		cfg.scale = computeScale / viewScale;
-
+		
 		let canvas = new Canvas(cfg.width, cfg.height).fill(cfg.fill);
 		canvas.ctx.drawImage(img, 0, 0, cfg.width, cfg.height);
 
 		if (cfg.fill === "auto") {
 			cfg.fill = getFill(canvas);
 		}
-
 		resolve(canvas, cfg);
 	};
 	img.onerror = e => {

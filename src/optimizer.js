@@ -10,7 +10,6 @@ export default class Optimizer {
 		this._steps = 0;
 		this.onStep = () => { };
 		this.onEnd = () => { };
-		console.log("initial distance %s", this.state.distance);
 	}
 
 	start() {
@@ -23,7 +22,6 @@ export default class Optimizer {
 			this._steps++;
 			if (step.distance < this.state.distance) { /* better than current state, epic */
 				this.state = step.apply(this.state);
-				console.log("switched to new state (%s) with distance: %s", this._steps, this.state.distance);
 				this.onStep(step);
 			} else { /* worse than current state, discard */
 				this.onStep(null);
@@ -37,9 +35,6 @@ export default class Optimizer {
 			setTimeout(() => this._addShape(), 10);
 		} else {
 			let time = Date.now() - this._ts;
-			console.log("target distance %s", this.state.distance);
-			console.log("real target distance %s", this.state.target.distance(this.state.canvas));
-			console.log("finished in %s", time);
 			this.onEnd(this.state);
 		}
 	}
@@ -76,7 +71,6 @@ export default class Optimizer {
 
 		let tryMutation = () => {
 			if (failedAttempts >= LIMIT) {
-				console.log("mutation optimized distance from %s to %s in (%s good, %s total) attempts", arguments[0].distance, bestStep.distance, successAttempts, totalAttempts);
 				return resolve(bestStep);
 			}
 
@@ -90,7 +84,6 @@ export default class Optimizer {
 					failedAttempts++;
 				}
 
-				// requestAnimationFrame(tryMutation);
 				tryMutation();
 			});
 		}
