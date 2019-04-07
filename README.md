@@ -1,5 +1,7 @@
 # primitive.js
 
+[![Badge](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu/#/zh_CN)
+
 A JavaScript re-creation of the [primitive.lol](http://primitive.lol/) application.
 
 This project works on the ondras/primitive.js, and you can learn more about primitive.js in [primitive.js](https://github.com/ondras/primitive.js)
